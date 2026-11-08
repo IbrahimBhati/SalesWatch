@@ -19,6 +19,7 @@ export const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({
   const [threshold, setThreshold] = useState(website?.discount_threshold || 50);
   const [frequency, setFrequency] = useState(website?.scan_frequency || 3);
   const [name, setName] = useState(website?.name || '');
+  const [keywordsInput, setKeywordsInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +28,7 @@ export const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({
       setThreshold(website.discount_threshold);
       setFrequency(website.scan_frequency);
       setName(website.name);
+      setKeywordsInput(website.keywords ? website.keywords.join(', ') : '');
       setError(null);
     }
   }, [website]);
@@ -39,10 +41,16 @@ export const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({
     setError(null);
 
     try {
+      const parsedKeywords = keywordsInput
+        .split(',')
+        .map(k => k.trim())
+        .filter(Boolean);
+
       const updated = await api.updateWebsite(website.id, {
         name: name.trim() || website.name,
         discount_threshold: Number(threshold),
         scan_frequency: Number(frequency),
+        keywords: parsedKeywords,
       });
       onUpdated(updated);
       onClose();
@@ -84,6 +92,25 @@ export const EditWebsiteModal: React.FC<EditWebsiteModalProps> = ({
               onChange={e => setName(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-neutral-50/80 border border-neutral-200 rounded-xl text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 focus:border-[#0071e3] transition"
             />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-neutral-700">
+                Keyword Filter <span className="text-neutral-400 font-normal">(optional)</span>
+              </label>
+              <span className="text-[11px] text-neutral-400">Comma-separated</span>
+            </div>
+            <input
+              type="text"
+              placeholder="e.g. shoes, winter jacket, denim, sneakers"
+              value={keywordsInput}
+              onChange={e => setKeywordsInput(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-neutral-50/80 border border-neutral-200 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 focus:border-[#0071e3] transition"
+            />
+            <p className="text-[11px] text-neutral-400 mt-1">
+              Only notify for products matching these words (e.g. 'shoes' or 'winter jacket').
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3.5">

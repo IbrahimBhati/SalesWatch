@@ -22,6 +22,7 @@ export const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({
   const [name, setName] = useState('');
   const [threshold, setThreshold] = useState(defaultThreshold || 50);
   const [frequency, setFrequency] = useState(defaultFrequency || 3);
+  const [keywordsInput, setKeywordsInput] = useState('');
 
   const [isValidating, setIsValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<{
@@ -66,11 +67,17 @@ export const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({
     setError(null);
 
     try {
+      const parsedKeywords = keywordsInput
+        .split(',')
+        .map(k => k.trim())
+        .filter(Boolean);
+
       const newSite = await api.addWebsite({
         url: url.trim(),
         name: name.trim() || undefined,
         discount_threshold: Number(threshold),
         scan_frequency: Number(frequency),
+        keywords: parsedKeywords,
       });
       onWebsiteAdded(newSite);
       handleClose();
@@ -84,6 +91,7 @@ export const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({
   const handleClose = () => {
     setUrl('');
     setName('');
+    setKeywordsInput('');
     setValidationResult(null);
     setError(null);
     onClose();
@@ -183,6 +191,26 @@ export const AddWebsiteModal: React.FC<AddWebsiteModalProps> = ({
               onChange={e => setName(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-neutral-50/80 border border-neutral-200 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 focus:border-[#0071e3] transition"
             />
+          </div>
+
+          {/* Keyword Filter */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-neutral-700">
+                Keyword Filter <span className="text-neutral-400 font-normal">(optional)</span>
+              </label>
+              <span className="text-[11px] text-neutral-400">Comma-separated</span>
+            </div>
+            <input
+              type="text"
+              placeholder="e.g. shoes, winter jacket, denim, sneakers"
+              value={keywordsInput}
+              onChange={e => setKeywordsInput(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-neutral-50/80 border border-neutral-200 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 focus:border-[#0071e3] transition"
+            />
+            <p className="text-[11px] text-neutral-400 mt-1">
+              Restrict alerts to specific categories or product names to reduce noise. Leave empty to track all clothing.
+            </p>
           </div>
 
           {/* Discount Threshold & Scan Frequency Grid */}

@@ -5,6 +5,7 @@ export interface Website {
   status: 'active' | 'paused' | 'error';
   discount_threshold: number;
   scan_frequency: number; // in hours
+  keywords?: string[]; // optional keyword filters (e.g. ['shoes', 'winter jacket'])
   last_scanned_at: string | null;
   next_scan_at: string | null;
   created_at: string;

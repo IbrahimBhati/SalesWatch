@@ -74,12 +74,23 @@ export async function executeWebsiteScan(websiteId: string): Promise<ScanExecuti
 
       if (isNew) newProductsCount++;
 
-      // Strict Sale Detection Rule:
       // 1. Must qualify based on regular (original) price, not already-discounted prices
       const meetsThreshold = product.is_verified_discount && newDiscountPercentage >= threshold;
 
       if (!meetsThreshold) {
         continue;
+      }
+
+      // Keyword filter check: restrict alerts to specific categories or product names
+      if (website.keywords && website.keywords.length > 0) {
+        const prodNameLower = product.name.toLowerCase();
+        const matchesKeyword = website.keywords.some(kw =>
+          prodNameLower.includes(kw.trim().toLowerCase())
+        );
+        if (!matchesKeyword) {
+          // Excluded by keyword filter (e.g. user only wants 'shoes' or 'winter jacket')
+          continue;
+        }
       }
 
       // 2. Ignore stable already-discounted prices

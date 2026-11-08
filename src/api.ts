@@ -31,7 +31,7 @@ export const api = {
         body: JSON.stringify({ url }),
       }
     ),
-  addWebsite: (data: { url: string; name?: string; discount_threshold?: number; scan_frequency?: number }) =>
+  addWebsite: (data: { url: string; name?: string; discount_threshold?: number; scan_frequency?: number; keywords?: string[] }) =>
     fetchJson<Website>('/api/websites', {
       method: 'POST',
       body: JSON.stringify(data),

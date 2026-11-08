@@ -69,7 +69,7 @@ app.post('/api/websites/validate', async (req: Request, res: Response) => {
 
 app.post('/api/websites', async (req: Request, res: Response) => {
   try {
-    const { url, name, discount_threshold, scan_frequency } = req.body;
+    const { url, name, discount_threshold, scan_frequency, keywords } = req.body;
     if (!url) {
       res.status(400).json({ error: 'Website URL is required.' });
       return;
@@ -82,12 +82,19 @@ app.post('/api/websites', async (req: Request, res: Response) => {
       return;
     }
 
+    const parsedKeywords = Array.isArray(keywords)
+      ? keywords.map((k: any) => String(k).trim()).filter(Boolean)
+      : typeof keywords === 'string'
+      ? keywords.split(',').map((k: string) => k.trim()).filter(Boolean)
+      : [];
+
     const newSite = addWebsite({
       name: name?.trim() || validation.storeName,
       url: validation.normalizedUrl,
       status: 'active',
       discount_threshold: Number(discount_threshold) || 50,
       scan_frequency: Number(scan_frequency) || 3,
+      keywords: parsedKeywords,
       last_scanned_at: null,
       next_scan_at: null,
       favicon: validation.favicon,
@@ -105,7 +112,14 @@ app.post('/api/websites', async (req: Request, res: Response) => {
 app.patch('/api/websites/:id', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = { ...req.body };
+    if ('keywords' in updates) {
+      updates.keywords = Array.isArray(updates.keywords)
+        ? updates.keywords.map((k: any) => String(k).trim()).filter(Boolean)
+        : typeof updates.keywords === 'string'
+        ? updates.keywords.split(',').map((k: string) => k.trim()).filter(Boolean)
+        : [];
+    }
     const updated = updateWebsite(id, updates);
     if (!updated) {
       res.status(404).json({ error: 'Website not found.' });

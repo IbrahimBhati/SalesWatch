@@ -7,6 +7,7 @@ import {
   Check,
   ArrowUpDown,
   Filter,
+  Search,
 } from 'lucide-react';
 import { Alert, Product } from '../types';
 import { api } from '../api';
@@ -27,6 +28,7 @@ export const AlertsView: React.FC<AlertsViewProps> = ({
   const [filterThreshold, setFilterThreshold] = useState<number | 'all' | 'recent'>('all');
   const [selectedStore, setSelectedStore] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'highest_discount' | 'newest' | 'lowest_price'>('highest_discount');
+  const [keywordSearch, setKeywordSearch] = useState('');
 
   // Extract unique store names
   const storeNames = useMemo(() => {
@@ -38,6 +40,15 @@ export const AlertsView: React.FC<AlertsViewProps> = ({
   // Filter & Sort
   const filteredAlerts = useMemo(() => {
     let result = [...alerts];
+
+    // Keyword search filter
+    if (keywordSearch.trim()) {
+      const q = keywordSearch.trim().toLowerCase();
+      result = result.filter(a =>
+        a.product_name.toLowerCase().includes(q) ||
+        a.website_name.toLowerCase().includes(q)
+      );
+    }
 
     // Store filter
     if (selectedStore !== 'all') {
@@ -153,8 +164,19 @@ export const AlertsView: React.FC<AlertsViewProps> = ({
           </button>
         </div>
 
-        {/* Store & Sort selectors */}
+        {/* Store, Search & Sort selectors */}
         <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-neutral-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search alerts..."
+              value={keywordSearch}
+              onChange={e => setKeywordSearch(e.target.value)}
+              className="pl-8 pr-3 py-1.5 bg-neutral-100 hover:bg-neutral-200/60 rounded-xl text-xs font-medium text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-[#0071e3] transition w-32 sm:w-40"
+            />
+          </div>
+
           {storeNames.length > 1 && (
             <div className="relative">
               <select

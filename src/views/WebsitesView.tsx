@@ -208,6 +208,14 @@ export const WebsitesView: React.FC<WebsitesViewProps> = ({
                         <span>Threshold: <strong className="font-semibold text-neutral-800">{site.discount_threshold}%+</strong></span>
                         <span aria-hidden="true" className="text-neutral-300">·</span>
                         <span>Every {site.scan_frequency}h</span>
+                        {site.keywords && site.keywords.length > 0 && (
+                          <>
+                            <span aria-hidden="true" className="text-neutral-300">·</span>
+                            <span className="text-[#0071e3]">
+                              Keywords: <strong>{site.keywords.join(', ')}</strong>
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
