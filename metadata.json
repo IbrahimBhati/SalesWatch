@@ -1,0 +1,6 @@
+{
+  "name": "SaleWatch",
+  "description": "Never Miss a Great Deal. Automated fashion e-commerce sale tracking with discount alerts and Telegram notifications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        try {
+          var _origFetch = window.fetch ? window.fetch.bind(window) : null;
+          var _currentFetch = _origFetch;
+          var descriptor = {
+            get: function() {
+              return _currentFetch;
+            },
+            set: function(fn) {
+              _currentFetch = fn;
+            },
+            configurable: true,
+            enumerable: true
+          };
+
+          try {
+            Object.defineProperty(window, 'fetch', descriptor);
+          } catch (e) {
+            try {
+              Object.defineProperty(Window.prototype, 'fetch', descriptor);
+            } catch (e2) {}
+          }
+        } catch (err) {}
+
+        // Suppress chrome-extension injected script errors
+        window.addEventListener('error', function(event) {
+          if (
+            (event.filename && event.filename.indexOf('chrome-extension://') !== -1) ||
+            (event.message && event.message.indexOf('Cannot set property fetch') !== -1)
+          ) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          if (
+            event.reason &&
+            (
+              (event.reason.stack && event.reason.stack.indexOf('chrome-extension://') !== -1) ||
+              (event.reason.message && event.reason.message.indexOf('Cannot set property fetch') !== -1)
+            )
+          ) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        }, true);
+      })();
+    </script>
+    <title>SaleWatch — Never Miss a Great Deal</title>
+    <meta name="description" content="Never Miss a Great Deal. Automated fashion e-commerce sale tracking with discount alerts and Telegram notifications." />
+    <meta property="og:title" content="SaleWatch — Never Miss a Great Deal" />
+    <meta property="og:description" content="Never Miss a Great Deal. Automated fashion e-commerce sale tracking with discount alerts and Telegram notifications." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
